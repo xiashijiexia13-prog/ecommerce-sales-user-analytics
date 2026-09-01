@@ -1,0 +1,20 @@
+# Python 虚拟环境（体积大，不能提交）
+venv/
+.venv/
+
+# Python 缓存文件
+__pycache__/
+*.pyc
+*.pyo
+
+# 环境变量（存放数据库密码等敏感信息，绝不能提交）
+.env
+
+# 大数据文件（CSV 不提交，只提交生成脚本）
+*.csv
+
+# Jupyter 检查点
+.ipynb_checkpoints/
+
+# IDE 配置（可选，避免把个人编辑器配置传上去）
+.idea/
