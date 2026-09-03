@@ -36,21 +36,23 @@ CREATE TABLE IF NOT EXISTS products (
 -- 3. 订单表 orders（核心表，数据量最大）
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS orders (
-    order_id    VARCHAR(32)   NOT NULL                COMMENT '订单ID（字符串，模拟真实订单号）',
-    user_id     INT           NOT NULL                COMMENT '用户ID（关联 users.user_id）',
-    product_id  INT           NOT NULL                COMMENT '商品ID（关联 products.product_id）',
-    category    VARCHAR(30)   NOT NULL                COMMENT '品类（冗余存储，避免频繁关联商品表）',
-    quantity    INT           NOT NULL DEFAULT 1      COMMENT '购买数量',
-    amount      DECIMAL(12,2) NOT NULL                COMMENT '订单金额（元），正常=单价×数量',
-    order_time  DATETIME      NOT NULL                COMMENT '下单时间',
-    pay_time    DATETIME      DEFAULT NULL            COMMENT '支付时间（未支付订单为 NULL）',
-    status      VARCHAR(20)   NOT NULL                COMMENT '订单状态（已支付/已退款/待支付/已取消）',
-    region      VARCHAR(50)   DEFAULT NULL            COMMENT '收货地区',
-    channel     VARCHAR(20)   DEFAULT NULL            COMMENT '下单渠道',
-    PRIMARY KEY (order_id),
-    KEY idx_user_id (user_id),          -- 索引：按用户查订单时加速
-    KEY idx_order_time (order_time),    -- 索引：按时间查销售趋势时加速
-    KEY idx_category (category)         -- 索引：按品类分析时加速
+    id          BIGINT       NOT NULL AUTO_INCREMENT COMMENT '代理主键（自增，仅标识行）',
+    order_id    VARCHAR(32)  NOT NULL                COMMENT '业务订单号（理论上唯一，脏数据会出现重复）',
+    user_id     INT          NOT NULL                COMMENT '用户ID（关联 users.user_id）',
+    product_id  INT          NOT NULL                COMMENT '商品ID（关联 products.product_id）',
+    category    VARCHAR(30)  NOT NULL                COMMENT '品类（冗余存储，避免频繁关联商品表）',
+    quantity    INT          NOT NULL DEFAULT 1      COMMENT '购买数量',
+    amount      DECIMAL(12,2) NOT NULL               COMMENT '订单金额（元），正常=单价×数量',
+    order_time  DATETIME     NOT NULL                COMMENT '下单时间',
+    pay_time    DATETIME     DEFAULT NULL            COMMENT '支付时间（未支付订单为 NULL）',
+    status      VARCHAR(20)  NOT NULL                COMMENT '订单状态（已支付/已退款/待支付/已取消）',
+    region      VARCHAR(50)  DEFAULT NULL            COMMENT '收货地区',
+    channel     VARCHAR(20)  DEFAULT NULL            COMMENT '下单渠道',
+    PRIMARY KEY (id),
+    KEY idx_order_id (order_id),      -- 索引：按订单号查询（非唯一，允许重复）
+    KEY idx_user_id (user_id),        -- 索引：按用户查订单时加速
+    KEY idx_order_time (order_time),  -- 索引：按时间查销售趋势时加速
+    KEY idx_category (category)       -- 索引：按品类分析时加速
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单表（核心表）';
 
 -- ------------------------------------------------------------
