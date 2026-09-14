@@ -9,8 +9,12 @@
 
 import os
 from dotenv import load_dotenv
+import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
+
+# 固定随机种子（保证重新生成 pay_time 时可复现）
+np.random.seed(42)
 
 # 1. 连接数据库，读取数据
 load_dotenv(dotenv_path='.env')
@@ -42,12 +46,14 @@ orders.loc[abnormal, 'amount'] = (orders.loc[abnormal, 'price'] * orders.loc[abn
 orders = orders.drop(columns=['price'])
 print(f"[金额修复]   修复了 {abnormal.sum()} 条异常金额（重算为 单价×数量）")
 
-# 5. 修复时间逻辑错误：交换 pay_time 和 order_time
+# 5. 修复时间逻辑错误：重新生成正确的支付时间
+#    下单时间(order_time)本身没错，错的是支付时间(pay_time)，
+#    所以只改 pay_time（改成"下单后1分钟~2小时"），不动 order_time
 swap = orders['pay_time'] < orders['order_time']
-tmp = orders.loc[swap, 'pay_time'].values
-orders.loc[swap, 'pay_time'] = orders.loc[swap, 'order_time'].values
-orders.loc[swap, 'order_time'] = tmp
-print(f"[时间修复]   交换了 {swap.sum()} 条时间颠倒的订单")
+n_time_fix = int(swap.sum())
+orders.loc[swap, 'pay_time'] = orders.loc[swap, 'order_time'].to_numpy() + \
+    np.random.randint(60, 7200, size=n_time_fix).astype('timedelta64[s]')
+print(f"[时间修复]   修正了 {n_time_fix} 条支付时间错误的订单（重新生成 pay_time）")
 
 # 6. 修复状态矛盾：已支付但无支付时间 -> 改为待支付
 status_fix = (orders['status'] == '已支付') & (orders['pay_time'].isnull())
