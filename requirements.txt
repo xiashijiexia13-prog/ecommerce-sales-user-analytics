@@ -1,3 +1,4 @@
+altair==6.3.0
 cffi==2.1.1
 cloudpickle==3.1.2
 contourpy==1.4.0
@@ -23,6 +24,7 @@ scikit-learn==1.9.1
 scipy==1.18.1
 six==1.17.0
 SQLAlchemy==2.0.52
+streamlit==1.64.0
 threadpoolctl==3.6.0
 typing_extensions==4.16.0
 tzdata==2026.3
